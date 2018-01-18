@@ -1,0 +1,8 @@
+version: '3'
+services:
+  syncthing-build-el7:
+    build: .
+    volumes:
+      - ./rpmbuild/:/home/vagrant/rpmbuild
+      - ./ansible/playbooks/:/etc/ansible/playbooks/
+      - ./ansible/roles/:/etc/ansible/roles/
