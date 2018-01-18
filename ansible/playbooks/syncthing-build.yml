@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    golang: 1.8
+    syncver: 0.14.43
+  roles:
+    - rpm_syncthing

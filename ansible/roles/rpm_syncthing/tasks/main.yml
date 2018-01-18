@@ -1,0 +1,37 @@
+---
+- name: Required Build Packages
+  yum:
+    name: "{{item}}"
+    state: latest
+  with_items:
+    - rpm-build
+    - redhat-rpm-config
+    - libselinux-python
+    - gcc
+- name: rpmbuild dir creation
+  file:
+    path: /home/vagrant/rpmbuild/{{item}}
+    state: directory
+    recurse: yes
+  become_method: su
+  become_user: vagrant
+  with_items:
+    - BUILD
+    - RPMS
+    - SOURCES
+    - SPECS
+    - SRPMS
+- name: Download syncthing Version {{syncver}}
+  get_url:
+    url: https://github.com/syncthing/syncthing/archive/v{{syncver}}.tar.gz
+    dest: /home/vagrant/rpmbuild/SOURCES/v{{syncver}}.tar.gz
+  become_method: su
+  become_user: vagrant
+- name: Create the RPM
+  shell: rpmbuild -ba /home/vagrant/rpmbuild/SPECS/syncthing.spec
+  args:
+    chdir: "/home/vagrant/rpmbuild"
+  become_method: su
+  become_user: vagrant
+  environment:
+    PATH: '/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'

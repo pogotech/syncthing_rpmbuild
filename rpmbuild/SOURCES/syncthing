@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Startup sript for Syncthing
+#
+# chkconfig: - 80 20
+# description: Syncthing file replicator
+# processname: syncthing
+#
+
+source /opt/syncthing/syncthing.env
+
+svc=syncthing
+SYNCTHING="/opt/syncthing"
+dir="${SYNCTHING}"
+user="syncthing"
+stdout_log="/var/log/${svc}/${svc}.log"
+cmd="${dir}/bin/${svc} -home=${HOME}/conf -logflags=3"
+
+# Source function library.
+
+. /etc/rc.d/init.d/functions
+start() {
+  echo -n "Starting ${svc}: "
+  cd ${dir}
+  pidofproc ${svc} > /dev/null && echo -n "already running" && failure && echo && exit 1
+  if [ ! -e ${stdout_log} ]; then
+    touch ${stdout_log}
+  fi
+  /bin/su -m ${user} -c "${cmd}" &>> "${stdout_log}" &
+  /bin/sleep 1
+  if kill -0 $(pidofproc ${svc}) 2>/dev/null; then
+    success
+  else
+    failure
+  fi
+  
+  echo
+  }
+
+stop() {
+  echo -n "Shutting down ${svc}: "
+  pid=$(pidofproc ${svc})
+  if [ $? -ne 0 ]; then
+    # LSB says stop on stopped should be success
+    success
+  else
+    kill ${pid}
+    success
+  fi
+  echo
+  }
+
+case "$1" in
+    start)
+      start
+      ;;
+    stop)
+      stop
+      ;;
+    restart)
+      stop
+      start
+      ;;
+    *)
+      echo "Please use start, stop or restart as first argument"
+      RETVAL=2
+      ;;
+esac
+
+exit $RETVAL 
