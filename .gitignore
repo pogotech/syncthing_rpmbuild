@@ -1,0 +1,7 @@
+rpmbuild/SRPMS
+rpmbuild/RPMS
+rpmbuild/BUILD
+rpmbuild/BUILDROOT
+.vagrant/
+syncthing-build.retry
+*.tar.gz
